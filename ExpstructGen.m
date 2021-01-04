@@ -65,13 +65,13 @@ if ~isempty(a2)
 
     A1stru.OppBehavior = A2stru.Behavior;
     A2stru.OppBehavior = A1stru.Behavior;
-    %% set upt output
+    %% set up output
     E_ROC{1} = A1stru;
     E_ROC{2} = A2stru;
 else % only 1 animal
     E_ROC = cell(1);
     A1stru.DataMatrix = a1.RawTraces(:, a1.cell_label==1);
-    A1stru.ExperimentInfo = expinfo{1};
+    A1stru.ExperimentInfo = expinfo;
 
     %% construt behavior struct
     all_behavs = behav_A.getNames();

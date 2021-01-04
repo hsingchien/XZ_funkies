@@ -70,27 +70,25 @@ text(tm/fr+20, 30, 'Sbj behavior');
 % hold on
 
 % patch opp behavior bouts
+if isfield(estruct, 'OppBehavior') % check if this is the dual animal case
+    fn=estruct.OppBehavior.EventNames;
+    op_behav_in_this_m = intersect(allTypes, fn);
 
-fn=estruct.OppBehavior.EventNames;
-op_behav_in_this_m = intersect(allTypes, fn);
+    for l = 1:length(op_behav_in_this_m)
+        indc = find(strcmp(allTypes, op_behav_in_this_m{l}));
+        indd = find(strcmp(estruct.OppBehavior.EventNames, op_behav_in_this_m{l}));
+        onsets=estruct.OppBehavior.OnsetTimes{indd};
+        offsets=estruct.OppBehavior.OffsetTimes{indd};
 
-
-
-
-for l = 1:length(op_behav_in_this_m)
-    indc = find(strcmp(allTypes, op_behav_in_this_m{l}));
-    indd = find(strcmp(estruct.OppBehavior.EventNames, op_behav_in_this_m{l}));
-    onsets=estruct.OppBehavior.OnsetTimes{indd};
-    offsets=estruct.OppBehavior.OffsetTimes{indd};
-
-    for n = 1:length(onsets)
-        P(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[50,70,70,50],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.5); 
-        if patchOpp
-            ystopper = -space*(length(clist)-1)-2;
-            PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.05,'EdgeAlpha',0.05);
+        for n = 1:length(onsets)
+            P(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[50,70,70,50],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.5); 
+            if patchOpp
+                ystopper = -space*(length(clist)-1)-2;
+                PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.05,'EdgeAlpha',0.05);
+            end
         end
+
     end
-    
 end
 
 % patch for behavior legend
