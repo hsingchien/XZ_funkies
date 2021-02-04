@@ -63,7 +63,9 @@ f= figure;
 a = axes('NextPlot','add');
 plot(t_ax, all_mean_trace, '-', 'Parent', a);
 line([0,0], a.YLim);
-
+for i = 1:length(cell_ID)
+    text(a.XLim(2), spacing*(length(cell_ID)-i), num2str(cell_ID(i)), 'FontSize', 8);
+end
 
 
 

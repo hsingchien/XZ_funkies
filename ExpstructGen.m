@@ -44,7 +44,7 @@ if ~isempty(a2)
     behav_A.setStrm(1);
     for i = 1:n_behavs 
         this_b_name = all_behavs{i+1};
-        A1stru.Behavior.LogicalVecs = (behav_A.getLbls() == (i+1));
+        A1stru.Behavior.LogicalVecs{i} = (behav_A.getLbls() == (i+1));
         btypes = behav_A.getTypes();
         btype_ids = find(btypes == (i+1)); % 1 is 'other', skip
         bstart = [];
@@ -63,7 +63,7 @@ if ~isempty(a2)
     behav_A.setStrm(2);
     for i = 1:n_behavs
         this_b_name = all_behavs{i+1};
-        A2stru.Behavior.LogicalVecs = (behav_A.getLbls() == (i+1));
+        A2stru.Behavior.LogicalVecs{i} = (behav_A.getLbls() == (i+1));
         btypes = behav_A.getTypes();
         btype_ids = find(btypes == (i+1)); % 1 is 'other', skip
         bstart = [];
