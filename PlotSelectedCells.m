@@ -1,8 +1,10 @@
-function PlotSelectedCells(estruct, clist, patchOpp)
+function PlotSelectedCells(estruct, clist, behav_patch, patchOpp)
 % plot behavior bouts and gcamp signal of selected cells in clist
 % estruct: struct of a single animal, containing cell traces, behavior
 % info, etc.
 % clist: indices of cells you want to plot
+% behav_patch: string of behaviors you want to patch, parsed by ',',
+% default 'all'
 % patchOpp: default false. whether you want to patch the Opp instead of Sbj
 % behaviors upon GCamp traces
 
@@ -13,14 +15,20 @@ fr = 30;
 
 if nargin < 2
     clist = 'all';
+    behav_patch = 'all';
     patchOpp = false;
 elseif nargin < 3
+    behav_patch = 'all';
+    patchOpp = false;
+elseif nargin < 4
     patchOpp = false;
 end
 
 if strcmp(clist, 'all')
     clist = 1:cellNum;
 end
+behav_patch = behav_patch(~isspace(behav_patch));
+
 
 DM = zscore(estruct.DataMatrix);
 selDM = DM(:, clist);
@@ -38,7 +46,8 @@ end
 
 % patch behaviors
 
-allTypes = estruct.Behavior.EventNames;
+allTypes = setdiff(estruct.Behavior.EventNames,'pooled');
+
 if exist('maxdistcolor')
     cls = maxdistcolor(length(allTypes), @sRGB_to_CIELab);
 else
@@ -46,10 +55,16 @@ else
 end
 
 fn=fieldnames(estruct.behaviorStruct);
-behav_in_this_m = intersect(allTypes, fn);
+
 
 
 % patch sbj behavior bouts
+if strcmp(behav_patch, 'all')
+    behav_in_this_m = intersect(allTypes, fn);
+else
+    behav_in_this_m = intersect(strsplit(behav_patch, ','), fn);
+end
+
 
 
 for l = 1:length(behav_in_this_m)
@@ -72,8 +87,14 @@ text(tm/fr+20, 30, 'Sbj behavior');
 % patch opp behavior bouts
 if isfield(estruct, 'OppBehavior') % check if this is the dual animal case
     fn=estruct.OppBehavior.EventNames;
-    op_behav_in_this_m = intersect(allTypes, fn);
-
+    op_behav_in_this_m = intersect(strsplit(behav_patch, ','), fn);
+    if strcmp(behav_patch, 'all')
+        op_behav_in_this_m = intersect(allTypes, fn);
+    else
+        behav_in_this_m = intersect(strsplit(behav_patch, ','), fn);
+    end
+    
+    
     for l = 1:length(op_behav_in_this_m)
         indc = find(strcmp(allTypes, op_behav_in_this_m{l}));
         indd = find(strcmp(estruct.OppBehavior.EventNames, op_behav_in_this_m{l}));
