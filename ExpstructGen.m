@@ -24,8 +24,11 @@ end
 
 if ~isempty(a2)
     E_ROC = cell(1,2);
-    A1stru.DataMatrix = a1.RawTraces(:, a1.cell_label==1);
-    A2stru.DataMatrix = a2.RawTraces(:, a2.cell_label==1);
+    A1stru.RawTraces = a1.RawTraces(:, a1.cell_label==1);
+    A2stru.RawTraces = a2.RawTraces(:, a2.cell_label==1);
+    A1stru.FiltTraces = a1.FiltTraces(:, a1.cell_label==1);
+    A2stru.FiltTraces = a2.FiltTraces(:, a2.cell_label==1);
+    
     A1stru.ExperimentInfo = expinfo{1};
     A2stru.ExperimentInfo = expinfo{2};
 

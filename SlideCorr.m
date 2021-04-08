@@ -20,7 +20,10 @@ end
 if isempty(step)
     step = 15;
 end
-
+if ~isfield(M1, 'DataMatrix')
+    M1.DataMatrix = M1.RawTraces;
+    M2.DataMatrix = M2.RawTraces;
+end
 fr = 30; % frame rate
 DM1 = zscore(M1.DataMatrix);
 DM2 = zscore(M2.DataMatrix);

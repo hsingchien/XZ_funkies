@@ -3,22 +3,27 @@ function PlotSelectedCells(estruct, clist, behav_patch, patchOpp)
 % estruct: struct of a single animal, containing cell traces, behavior
 % info, etc.
 % clist: indices of cells you want to plot
-% behav_patch: string of behaviors you want to patch, parsed by ',',
-% default 'all'
+% behav_patch: 1x2 cell of string, behaviors you want to patch, parsed by ',',
+% first one is subject animal, second one is opponent animal. default 'all'
 % patchOpp: default false. whether you want to patch the Opp instead of Sbj
 % behaviors upon GCamp traces
 
 
 fr = 30;
+
+if ~isfield(estruct,'DataMatrix');
+    estruct.DataMatrix = estruct.RawTraces;
+end
+
 [tm, cellNum] = size(estruct.DataMatrix);
 
 
 if nargin < 2
     clist = 'all';
-    behav_patch = 'all';
+    behav_patch = {'all','all'};
     patchOpp = false;
 elseif nargin < 3
-    behav_patch = 'all';
+    behav_patch = {'all','all'};
     patchOpp = false;
 elseif nargin < 4
     patchOpp = false;
@@ -27,7 +32,10 @@ end
 if strcmp(clist, 'all')
     clist = 1:cellNum;
 end
-behav_patch = behav_patch(~isspace(behav_patch));
+for i = 1:length(behav_patch)
+    temp = behav_patch{i};
+    behav_patch{i} = temp(~isspace(temp));
+end
 
 
 DM = zscore(estruct.DataMatrix);
@@ -59,10 +67,10 @@ if isfield(estruct, 'Behavior')
 
 
     % patch sbj behavior bouts
-    if strcmp(behav_patch, 'all')
+    if strcmp(behav_patch{1}, 'all')
         behav_in_this_m = intersect(allTypes, fn);
     else
-        behav_in_this_m = intersect(strsplit(behav_patch, ','), fn);
+        behav_in_this_m = intersect(strsplit(behav_patch{1}, ','), fn);
     end
 
 
@@ -76,7 +84,7 @@ if isfield(estruct, 'Behavior')
             P(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[20, 40, 40, 20],cls(ind,:),'EdgeColor',cls(ind,:), 'FaceAlpha', 0.5);
             if ~patchOpp
                 ystopper = -space*(length(clist)-1)-2;
-                PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(ind,:),'EdgeColor',cls(ind,:), 'FaceAlpha', 0.05,'EdgeAlpha',0.05);
+                PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(ind,:),'EdgeColor',cls(ind,:), 'FaceAlpha', 0.5,'EdgeAlpha',0.05);
             end
         end       
     end
@@ -87,11 +95,11 @@ if isfield(estruct, 'Behavior')
     % patch opp behavior bouts
     if isfield(estruct, 'OppBehavior') % check if this is the dual animal case
         fn=estruct.OppBehavior.EventNames;
-        op_behav_in_this_m = intersect(strsplit(behav_patch, ','), fn);
-        if strcmp(behav_patch, 'all')
+        
+        if strcmp(behav_patch{2}, 'all')
             op_behav_in_this_m = intersect(allTypes, fn);
         else
-            behav_in_this_m = intersect(strsplit(behav_patch, ','), fn);
+            op_behav_in_this_m = intersect(strsplit(behav_patch{2}, ','), fn);
         end
 
 
@@ -105,7 +113,7 @@ if isfield(estruct, 'Behavior')
                 P(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[50,70,70,50],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.5); 
                 if patchOpp
                     ystopper = -space*(length(clist)-1)-2;
-                    PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.05,'EdgeAlpha',0.05);
+                    PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.5,'EdgeAlpha',0.05);
                 end
             end
 
