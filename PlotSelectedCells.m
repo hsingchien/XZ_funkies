@@ -16,7 +16,10 @@ if ~isfield(estruct,'DataMatrix');
 end
 
 [tm, cellNum] = size(estruct.DataMatrix);
-
+ 
+if ~tm
+    tm = length(estruct.Behavior.LogicalVecs{1});
+end
 
 if nargin < 2
     clist = 'all';
@@ -43,10 +46,11 @@ selDM = DM(:, clist);
 figure('position', [1 1 1000 1000]);
 a = axes('NextPlot', 'add');
 space = 9;
+if ~isempty(selDM)
+    selDM_plot = selDM - repmat(0:space: space*(length(clist)-1), [tm, 1]);
+    plot(a, (1:tm)/fr, selDM_plot, 'black');
+end
 
-selDM_plot = selDM - repmat(0:space: space*(length(clist)-1), [tm, 1]);
-
-plot(a, (1:tm)/fr, selDM_plot, 'black');
 
 for i = 1:length(clist)
     text(tm/fr+20, -space*(i-1), num2str(clist(i)), 'FontSize', 5);
