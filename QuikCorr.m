@@ -1,6 +1,6 @@
 function [c0,c1,c2] = QuikCorr(ms1,ms2,toffset)
 % input 2 ms, time offset (remove first toffset seconds), calculate corr
-fr = 30;
+fr = 15;
 if ischar(ms1)
     ms1 = load(ms1);
     name = fields(ms1);
@@ -33,7 +33,9 @@ tr111 = ms1.FFTTraces(foffset:end,ms1.cell_label>0);
 tr222 = ms2.FFTTraces(foffset:end,ms2.cell_label>0);
 
 
+
 mlen = min(size(tr1,1), size(tr2,1));
+timespan = (1:mlen)/fr;
 
 tr1 = tr1(1:mlen, :);
 tr2 = tr2(1:mlen, :);
@@ -49,8 +51,8 @@ c0 = corr(mean(zscore(tr1),2), mean(zscore(tr2),2));
 c1 = corr(mean(zscore(tr11),2), mean(zscore(tr22),2));
 c2 = corr(mean(zscore(tr111),2), mean(zscore(tr222),2));
 f = figure;
-subplot(2,1,1),hold on, plot(mean(zscore(tr1),2),'g-'); plot(mean(zscore(tr11),2),'b-'); %plot(mean(zscore(tr111),2),'r-'); title(ms1.dirName);
-subplot(2,1,2),hold on, plot(mean(zscore(tr2),2),'g-'); plot(mean(zscore(tr22),2),'b-'); %plot(mean(zscore(tr222),2),'r-'); title(ms2.dirName);
+subplot(2,1,1),hold on, plot(timespan,mean(zscore(tr1),2),'g-'); plot(timespan,mean(zscore(tr11),2),'b-'); title(ms1.dirName); %plot(timespan,mean(zscore(tr111),2),'r-'); 
+subplot(2,1,2),hold on, plot(timespan,mean(zscore(tr2),2),'g-'); plot(timespan,mean(zscore(tr22),2),'b-');  title(ms2.dirName); %plot(timespan,mean(zscore(tr222),2),'r-');
 
 % savefig(f, [ms1.vName(1:6),'.fig']);   
 
