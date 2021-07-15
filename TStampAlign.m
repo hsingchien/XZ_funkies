@@ -14,7 +14,7 @@ function [idx1,idx2,tdifference] = TStampAlign(refstamp,mapstamp)
 mapidx = round((refstamp - b)/r);
 
 mapidx(mapidx > length(mapstamp)) = []; 
-mapidx(mapidx < 1) = [];
+mapidx(mapidx < 1) = 1;
 
 idx1 = 1:length(refstamp);
 idx2 = mapidx;

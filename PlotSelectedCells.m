@@ -12,7 +12,7 @@ function PlotSelectedCells(estruct, clist, behav_patch, patchOpp)
 fr = 30;
 
 if ~isfield(estruct,'DataMatrix');
-    estruct.DataMatrix = estruct.RawTraces;
+    estruct.DataMatrix = estruct.FiltTraces;
 end
 
 [tm, cellNum] = size(estruct.DataMatrix);
@@ -59,14 +59,27 @@ end
 % patch behaviors
 if isfield(estruct, 'Behavior')
     allTypes = setdiff(estruct.Behavior.EventNames,'pooled');
+    fn=fieldnames(estruct.behaviorStruct);
+    % find number of behaviors 
+    allTypes_toPlot = {};
 
+    for i = 1:length(behav_patch)       
+        if strcmp(behav_patch{i}, 'all')
+            behav_in_this_m = intersect(allTypes, fn);
+        else
+            behav_in_this_m = intersect(strsplit(behav_patch{1}, ','), fn);
+        end
+        allTypes_toPlot = [allTypes_toPlot, behav_in_this_m];
+    end
+    allTypes_toPlot = unique(allTypes_toPlot);
+    
     if exist('maxdistcolor')
-        cls = maxdistcolor(length(allTypes), @sRGB_to_CIELab);
+        cls = maxdistcolor(length(allTypes_toPlot), @sRGB_to_CIELab);
     else
         error('add maxdistcolor to the path');
     end
 
-    fn=fieldnames(estruct.behaviorStruct);
+
 
 
 
@@ -80,7 +93,7 @@ if isfield(estruct, 'Behavior')
 
 
     for l = 1:length(behav_in_this_m)
-        ind = find(strcmp(allTypes, behav_in_this_m{l}));
+        ind = find(strcmp(allTypes_toPlot, behav_in_this_m{l}));
         onsets=estruct.behaviorStruct.(behav_in_this_m{l}).start;
         offsets=estruct.behaviorStruct.(behav_in_this_m{l}).end;
 
@@ -88,7 +101,7 @@ if isfield(estruct, 'Behavior')
             P(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[20, 40, 40, 20],cls(ind,:),'EdgeColor',cls(ind,:), 'FaceAlpha', 0.5);
             if ~patchOpp
                 ystopper = -space*(length(clist)-1)-2;
-                PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(ind,:),'EdgeColor',cls(ind,:), 'FaceAlpha', 0.5,'EdgeAlpha',0.05);
+                PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(ind,:),'EdgeColor',cls(ind,:), 'FaceAlpha', 0.15,'EdgeAlpha',0.05);
             end
         end       
     end
@@ -108,7 +121,7 @@ if isfield(estruct, 'Behavior')
 
 
         for l = 1:length(op_behav_in_this_m)
-            indc = find(strcmp(allTypes, op_behav_in_this_m{l}));
+            indc = find(strcmp(allTypes_toPlot, op_behav_in_this_m{l}));
             indd = find(strcmp(estruct.OppBehavior.EventNames, op_behav_in_this_m{l}));
             onsets=estruct.OppBehavior.OnsetTimes{indd};
             offsets=estruct.OppBehavior.OffsetTimes{indd};
@@ -117,7 +130,7 @@ if isfield(estruct, 'Behavior')
                 P(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[50,70,70,50],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.5); 
                 if patchOpp
                     ystopper = -space*(length(clist)-1)-2;
-                    PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.5,'EdgeAlpha',0.05);
+                    PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.15,'EdgeAlpha',0.05);
                 end
             end
 
@@ -125,11 +138,11 @@ if isfield(estruct, 'Behavior')
     end
 
     % patch for behavior legend
-    block = round(tm/fr/length(allTypes));
-    for i = 1:length(allTypes)
+    block = round(tm/fr/length(allTypes_toPlot));
+    for i = 1:length(allTypes_toPlot)
        ll = (i-1) * block; 
        patch([ll, ll, ll+block, ll+block], [80, 90, 90, 80], cls(i,:),'EdgeColor',cls(i,:), 'FaceAlpha', 0.5);
-       text(ll, 85, allTypes{i},'FontSize', 8);
+       text(ll, 85, allTypes_toPlot{i},'FontSize', 8);
 
     end
 
