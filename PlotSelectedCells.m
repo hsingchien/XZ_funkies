@@ -1,4 +1,4 @@
-function PlotSelectedCells(estruct, clist, behav_patch, patchOpp)
+function PlotSelectedCells(estructs, aID, sessionID, clist, behav_patch, patchOpp)
 % plot behavior bouts and gcamp signal of selected cells in clist
 % estruct: struct of a single animal, containing cell traces, behavior
 % info, etc.
@@ -9,16 +9,18 @@ function PlotSelectedCells(estruct, clist, behav_patch, patchOpp)
 % behaviors upon GCamp traces
 
 
-fr = 30;
+fr = 15;
 
-if ~isfield(estruct,'DataMatrix');
-    estruct.DataMatrix = estruct.FiltTraces;
-end
 
-[tm, cellNum] = size(estruct.DataMatrix);
+
+
+estruct = estructs{aID};
+opponent = estructs{setdiff(1:length(estructs),aID)};
+
+[tm, cellNum] = size(estruct.MS{sessionID}.FiltTraces);
  
 if ~tm
-    tm = length(estruct.Behavior.LogicalVecs{1});
+    tm = length(estruct.Behavior{sessionID}.LogicalVecs{1});
 end
 
 if nargin < 2
@@ -41,14 +43,14 @@ for i = 1:length(behav_patch)
 end
 
 
-DM = zscore(estruct.DataMatrix);
+DM = zscore(estruct.MS{sessionID}.FiltTraces);
 selDM = DM(:, clist);
 figure('position', [1 1 1000 1000]);
 a = axes('NextPlot', 'add');
 space = 9;
 if ~isempty(selDM)
     selDM_plot = selDM - repmat(0:space: space*(length(clist)-1), [tm, 1]);
-    plot(a, (1:tm)/fr, selDM_plot, 'black');
+    plot(a, estruct.TimeStamp.Ts{sessionID}.Ms/1000, selDM_plot, 'black');
 end
 
 
@@ -57,24 +59,34 @@ for i = 1:length(clist)
 end
 
 % patch behaviors
-if isfield(estruct, 'Behavior')
-    allTypes = setdiff(estruct.Behavior.EventNames,'pooled');
-    fn=fieldnames(estruct.behaviorStruct);
-    % find number of behaviors 
-    allTypes_toPlot = {};
-
+if ~isempty(estruct.Behavior{sessionID})
+    allTypes = estruct.Behavior{sessionID}.EventNames;
+    
+    % find behaviors that showed up in this session (both sbj and opp)
+    behavior_in_this_session_sbj = allTypes(~cellfun(@isempty, estruct.Behavior{sessionID}.OnsetTimes));
+    behavior_in_this_session_opp = opponent.Behavior{sessionID}.EventNames(~cellfun(@isempty, opponent.Behavior{sessionID}.OnsetTimes));
+    behavior_in_this_session = unique([behavior_in_this_session_sbj, behavior_in_this_session_opp]);
+    behav_to_plot = {};
     for i = 1:length(behav_patch)       
-        if strcmp(behav_patch{i}, 'all')
-            behav_in_this_m = intersect(allTypes, fn);
+        if and(strcmp(behav_patch{i}, 'all'), i==aID)
+            temp_behav_to_plot = behavior_in_this_session_sbj;
+            behav_to_plot_sbj = temp_behav_to_plot;
+        elseif strcmp(behav_patch{i}, 'all')
+            temp_behav_to_plot = behavior_in_this_session_sbj;
+            behav_to_plot_opp = temp_behav_to_plot;
+        elseif i==aID
+            temp_behav_to_plot = intersect(strsplit(behav_patch{i}, ','), behavior_in_this_session_sbj);
+            behav_to_plot_sbj = temp_behav_to_plot;
         else
-            behav_in_this_m = intersect(strsplit(behav_patch{1}, ','), fn);
+            temp_behav_to_plot = intersect(strsplit(behav_patch{i}, ','), behavior_in_this_session_opp);
+            behav_to_plot_opp = temp_behav_to_plot;
         end
-        allTypes_toPlot = [allTypes_toPlot, behav_in_this_m];
+        behav_to_plot = [behav_to_plot,temp_behav_to_plot];
     end
-    allTypes_toPlot = unique(allTypes_toPlot);
+    behav_to_plot = unique(behav_to_plot);
     
     if exist('maxdistcolor')
-        cls = maxdistcolor(length(allTypes_toPlot), @sRGB_to_CIELab);
+        cls = maxdistcolor(length(behav_to_plot), @sRGB_to_CIELab);
     else
         error('add maxdistcolor to the path');
     end
@@ -82,76 +94,62 @@ if isfield(estruct, 'Behavior')
 
 
 
-
-    % patch sbj behavior bouts
-    if strcmp(behav_patch{1}, 'all')
-        behav_in_this_m = intersect(allTypes, fn);
-    else
-        behav_in_this_m = intersect(strsplit(behav_patch{1}, ','), fn);
-    end
-
-
-
-    for l = 1:length(behav_in_this_m)
-        ind = find(strcmp(allTypes_toPlot, behav_in_this_m{l}));
-        onsets=estruct.behaviorStruct.(behav_in_this_m{l}).start;
-        offsets=estruct.behaviorStruct.(behav_in_this_m{l}).end;
+    for l = 1:length(behav_to_plot_sbj)
+        ind = find(strcmp(behav_to_plot, behav_to_plot_sbj{l})); % index for color map
+        indd = find(strcmp(estruct.Behavior{sessionID}.EventNames, behav_to_plot_sbj{l})); % index in Behavior Structure
+        onsets=estruct.Behavior{sessionID}.OnsetTimes{indd};
+        offsets=estruct.Behavior{sessionID}.OffsetTimes{indd};
 
         for n = 1:length(onsets)
-            P(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[20, 40, 40, 20],cls(ind,:),'EdgeColor',cls(ind,:), 'FaceAlpha', 0.5);
+            onsetTime = estruct.TimeStamp.Ts{sessionID}.Bv(onsets(n)+1)/1000;
+            offsetTime = estruct.TimeStamp.Ts{sessionID}.Bv(offsets(n)+1)/1000;
+            P(l)= patch([onsetTime onsetTime offsetTime offsetTime],[18, 23, 23, 18],cls(ind,:),'EdgeColor',cls(ind,:), 'FaceAlpha', 0.5);
             if ~patchOpp
                 ystopper = -space*(length(clist)-1)-2;
-                PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(ind,:),'EdgeColor',cls(ind,:), 'FaceAlpha', 0.15,'EdgeAlpha',0.05);
+                PP(l)= patch([onsetTime onsetTime offsetTime offsetTime],[0, ystopper, ystopper, 0],cls(ind,:),'EdgeColor',cls(ind,:), 'FaceAlpha', 0.15,'EdgeAlpha',0.05);
             end
         end       
     end
-    text(tm/fr+20, 30, 'Sbj behavior');
+    text(tm/fr+20, 20.5, 'Sbj');
     % patch([1 1 tm tm],[0 50 50 0],[0.1 0.4 0.1],'FaceAlpha',0.06)
     % hold on
 
     % patch opp behavior bouts
-    if isfield(estruct, 'OppBehavior') % check if this is the dual animal case
-        fn=estruct.OppBehavior.EventNames;
-        
-        if strcmp(behav_patch{2}, 'all')
-            op_behav_in_this_m = intersect(allTypes, fn);
-        else
-            op_behav_in_this_m = intersect(strsplit(behav_patch{2}, ','), fn);
-        end
 
+    for l = 1:length(behav_to_plot_opp)
+        indc = find(strcmp(behav_to_plot, behav_to_plot_opp{l}));
+        indd = find(strcmp(opponent.Behavior{sessionID}.EventNames, behav_to_plot_opp{l}));
+        onsets = opponent.Behavior{sessionID}.OnsetTimes{indd};
+        offsets= opponent.Behavior{sessionID}.OffsetTimes{indd};
 
-        for l = 1:length(op_behav_in_this_m)
-            indc = find(strcmp(allTypes_toPlot, op_behav_in_this_m{l}));
-            indd = find(strcmp(estruct.OppBehavior.EventNames, op_behav_in_this_m{l}));
-            onsets=estruct.OppBehavior.OnsetTimes{indd};
-            offsets=estruct.OppBehavior.OffsetTimes{indd};
-
-            for n = 1:length(onsets)
-                P(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[50,70,70,50],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.5); 
-                if patchOpp
-                    ystopper = -space*(length(clist)-1)-2;
-                    PP(l)= patch([onsets(n) onsets(n) offsets(n) offsets(n)]/fr,[0, ystopper, ystopper, 0],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.15,'EdgeAlpha',0.05);
-                end
+        for n = 1:length(onsets)
+            onsetTime = opponent.TimeStamp.Ts{sessionID}.Bv(onsets(n)+1)/1000;
+            offsetTime = opponent.TimeStamp.Ts{sessionID}.Bv(offsets(n)+1)/1000;
+            P(l)= patch([onsetTime onsetTime offsetTime offsetTime],[25,30,30,25],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.5); 
+            if patchOpp
+               ystopper = -space*(length(clist)-1)-2;
+               PP(l)= patch([onsetTime onsetTime offsetTime offsetTime],[0, ystopper, ystopper, 0],cls(indc,:),'EdgeColor',cls(indc,:), 'FaceAlpha', 0.15,'EdgeAlpha',0.05);
             end
-
         end
+
+    end
     end
 
     % patch for behavior legend
-    block = round(tm/fr/length(allTypes_toPlot));
-    for i = 1:length(allTypes_toPlot)
+    block = round(tm/fr/length(behav_to_plot));
+    for i = 1:length(behav_to_plot)
        ll = (i-1) * block; 
-       patch([ll, ll, ll+block, ll+block], [80, 90, 90, 80], cls(i,:),'EdgeColor',cls(i,:), 'FaceAlpha', 0.5);
-       text(ll, 85, allTypes_toPlot{i},'FontSize', 8);
+       patch([ll, ll, ll+block, ll+block], [32, 35, 35, 32], cls(i,:),'EdgeColor',cls(i,:), 'FaceAlpha', 0.5);
+       text(ll, 34, behav_to_plot{i},'FontSize', 10);
 
     end
 
 
+    a.YLim = [-space*(length(clist)-1)-2, 37];
+    a.XLim = [0,tm/fr+20];
+    text(tm/fr+20, 27.5, 'Opp');
 
-    a.YLim = [-space*(length(clist)-1)-2, 90];
-    text(tm/fr+20, 60, 'Opp behavior');
 
-end
 
 
 
