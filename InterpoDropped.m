@@ -16,6 +16,8 @@ if size(tstamp,2) == 1 % when only the time(ms) column is fed
 end
 % in case raw video is truncated from the end, ms.RawTraces frame number is smaller than
 % time stamp
+fprintf('time stamp %d frames... ms %d frames...\n', max(tstamp(:,1))+1, size(ms.RawTraces,1));
+
 tstamp = tstamp(1:size(ms.RawTraces,1),:);
 
 

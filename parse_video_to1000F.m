@@ -1,5 +1,5 @@
 % parse vid to 1000 frames
-vid1 = VideoReader('sep.avi');
+vid1 = VideoReader('msvideo.avi');
 vid2 = VideoReader('exp.avi');
 nF1 = vid1.NumFrames;
 nF2 = vid2.NumFrames;
