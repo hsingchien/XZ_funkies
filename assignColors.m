@@ -33,7 +33,7 @@ colorList =       {[1 0.6 0.6],... % attack
                   [0.6 0.6 0.6],... % human interfere
                   [1 1 1],...% other, white
                   [0.7875 0.8656 0.9672],... % nesting
-                  [1,1,1]}; % running
+                  [1,0.5,0.5]}; % attention
               
 for c = 1:numel(behavNames)
     colors = [colors; colorList{find(strcmp(behavs,behavNames{c}))}];
