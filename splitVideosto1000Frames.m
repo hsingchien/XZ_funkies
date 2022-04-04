@@ -1,4 +1,4 @@
-vid = VideoReader('msvideo.avi');
+vid = VideoReader('msvideo_R.avi');
 vidmat = read(vid);
 vidmat = squeeze(vidmat(:,:,1,:));
 numF = vid.NumFrames;
@@ -12,7 +12,7 @@ if tdsample>1
     vidmat = vmat_down;
 end
 for i = 0:numV
-    viw = VideoWriter([num2str(i+37),'.avi'],'Grayscale AVI');
+    viw = VideoWriter([num2str(i),'.avi'],'Grayscale AVI');
     viw.FrameRate = 15;
     open(viw);
     if i == numV
@@ -24,3 +24,5 @@ for i = 0:numV
    
     
 end
+
+clear all;
