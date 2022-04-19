@@ -13,6 +13,9 @@ function [trainingsets,validationsets] = cvpartition_spacing(Y, spacing, fold)
         vali_start = randi(length(label_idx{m}));
         for i = 1:fold
             numvali = floor((length(label_idx{m})-2*spacing)/fold);
+            if numvali < 0
+                error('spacing must be shorter than Y!\n');
+            end
             if vali_start+numvali-1 <= length(label_idx{m})
                 validationsets{i} = [validationsets{i}; label_idx{m}(vali_start:vali_start+numvali-1)];
                 trainingsets{i} = [trainingsets{i}; label_idx{m}([1:vali_start-spacing-1, vali_start+numvali+spacing:length(label_idx{m})])];
