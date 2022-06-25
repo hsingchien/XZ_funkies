@@ -1,4 +1,4 @@
-function  f = XZBoxPlot(inputdata, color_group, plotorder, xlegend, color_palette, a2)
+function  f = XZBoxPlot(inputdata, color_group, plotorder, xlegend, color_palette, a2, dotline)
 % inputdata, cell, each entry is a group of data nx1
 % color_group specify the color group idx for each column
 % plotorder order of boxes, should be the 1xncolumns vector
@@ -17,6 +17,12 @@ if exist('plotorder','var') & ~isempty(plotorder)
 else
     idx = 1:length(inputdata_copy);
 end
+if ~exist('dotline','var')
+    dotline = false;
+end
+
+
+color_group_ori = color_group;
 inputdata_copy = inputdata_copy(idx);
 if ~isempty(color_group)
     color_group = color_group(idx);
@@ -92,6 +98,25 @@ a2.XTickLabelMode = 'manual'; a2.XTickLabel = a.XTickLabel;
 a2.XTickLabelRotationMode = 'manual'; a2.XTickLabelRotation = a.XTickLabelRotation; 
 a2.XAxis.FontSize = 13; a2.YAxis.FontSize = 13;
 close(f1);
+
+% add dot lines by colorgroup
+if dotline
+    for i = unique(color_group_ori)
+        xs = plotorder(find(color_group_ori==i));
+        for j = xs % dots
+            plot(a2, inputdata_copy{j}*0+j, inputdata_copy{j}, 'k.','MarkerSize',10);
+        end
+        for j = 1:numel(inputdata_copy{xs(1)})
+            temp_data = [];
+            for k = xs
+                temp_data = [temp_data;inputdata_copy{k}(j)];
+            end
+            plot(a2, xs, temp_data, 'k-');
+        end
+    
+
+    end
+end
 
 
 end

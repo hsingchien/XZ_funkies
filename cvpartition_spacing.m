@@ -1,4 +1,4 @@
-function [trainingsets,validationsets] = cvpartition_spacing(Y, spacing, fold)
+function [trainingsets,validationsets] = CVPartition_Spacing(Y, spacing, fold)
 % input timeseries label, spacing (units data points) and fold
 % output cross validation partition index, stratified
     trainingsets = cell(1,fold);

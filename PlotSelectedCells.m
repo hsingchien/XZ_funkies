@@ -35,7 +35,7 @@ elseif nargin < 4
 end
 
 if strcmp(clist, 'all')
-    clist = 1:cellNum;
+    clist = find(estruct.MS{sessionID}.goodCellVec);
 end
 for i = 1:length(behav_patch)
     temp = behav_patch{i};
@@ -72,7 +72,7 @@ if ~isempty(estruct.Behavior{sessionID})
             temp_behav_to_plot = behavior_in_this_session_sbj;
             behav_to_plot_sbj = temp_behav_to_plot;
         elseif strcmp(behav_patch{i}, 'all')
-            temp_behav_to_plot = behavior_in_this_session_sbj;
+            temp_behav_to_plot = behavior_in_this_session_opp;
             behav_to_plot_opp = temp_behav_to_plot;
         elseif i==aID
             temp_behav_to_plot = intersect(strsplit(behav_patch{i}, ','), behavior_in_this_session_sbj);
@@ -84,7 +84,7 @@ if ~isempty(estruct.Behavior{sessionID})
         behav_to_plot = [behav_to_plot,temp_behav_to_plot];
     end
     behav_to_plot = unique(behav_to_plot);
-    
+    behav_to_plot = setdiff(behav_to_plot, 'other');
     if exist('maxdistcolor')
         cls = maxdistcolor(length(behav_to_plot), @sRGB_to_CIELab);
     else
@@ -92,7 +92,7 @@ if ~isempty(estruct.Behavior{sessionID})
     end
 
 
-
+    behav_to_plot_sbj = setdiff(behav_to_plot_sbj,'other');
 
     for l = 1:length(behav_to_plot_sbj)
         ind = find(strcmp(behav_to_plot, behav_to_plot_sbj{l})); % index for color map
@@ -115,7 +115,7 @@ if ~isempty(estruct.Behavior{sessionID})
     % hold on
 
     % patch opp behavior bouts
-
+    behav_to_plot_opp = setdiff(behav_to_plot_opp,'other');
     for l = 1:length(behav_to_plot_opp)
         indc = find(strcmp(behav_to_plot, behav_to_plot_opp{l}));
         indd = find(strcmp(opponent.Behavior{sessionID}.EventNames, behav_to_plot_opp{l}));
@@ -140,7 +140,7 @@ if ~isempty(estruct.Behavior{sessionID})
     for i = 1:length(behav_to_plot)
        ll = (i-1) * block; 
        patch([ll, ll, ll+block, ll+block], [32, 35, 35, 32], cls(i,:),'EdgeColor',cls(i,:), 'FaceAlpha', 0.5);
-       text(ll, 34, behav_to_plot{i},'FontSize', 10);
+       text(ll, 34, strrep(behav_to_plot{i},'_','-'),'FontSize', 10);
 
     end
 
@@ -149,9 +149,10 @@ if ~isempty(estruct.Behavior{sessionID})
     a.XLim = [0,tm/fr+20];
     text(tm/fr+20, 27.5, 'Opp');
 
-
-
-
-
+    titlestr = [estruct.ExperimentID,'-',estruct.AnimalID];
+    try
+        titlestr = [titlestr, '-',estruct.GenType];
+    end
+    title(strrep(titlestr,'_','-'));
 end
 

@@ -1,4 +1,4 @@
-vid = VideoReader('msvideo_R.avi');
+vid = VideoReader('right.avi');
 vidmat = read(vid);
 vidmat = squeeze(vidmat(:,:,1,:));
 numF = vid.NumFrames;

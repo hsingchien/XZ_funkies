@@ -15,3 +15,14 @@ for i = 1:length(allPairs);
         end
     end
 end
+
+
+for i = 1:length(allPairs)
+    toyid = find(contains(allPairs{i}{1}.videoInfo.session,'toy'));
+    toyid = toyid';
+    for k = toyid
+        if ~isempty(allPairs{i}{1}.Behavior{k})
+            fprintf('Pair%d\n',i);
+        end
+    end
+end
