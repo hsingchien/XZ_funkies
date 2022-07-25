@@ -15,6 +15,7 @@ end
 if exist('plotorder','var') & ~isempty(plotorder)
     [~,idx] = sort(plotorder);
 else
+    plotorder = 1:numel(inputdata_copy);
     idx = 1:length(inputdata_copy);
 end
 if ~exist('dotline','var')

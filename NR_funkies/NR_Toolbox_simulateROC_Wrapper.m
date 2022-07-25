@@ -26,8 +26,8 @@ info.saveExtension = 'toy_exp'; %%%% extension for ROC filename (will be saved a
 %%%% set ROC run parameters
 
 % pair(s) and session(s)
-params.pairSet = [20];
-params.sessionSet = {'toy'}; % 'sep', 'exp', 'exp#' (e.g. 'exp2'), or any combination (will skip if session does not exist)
+params.pairSet = [43];
+params.sessionSet = {'exp'}; % 'sep', 'exp', 'exp#' (e.g. 'exp2'), or any combination (will skip if session does not exist)
 %%%% add traces or spikes
 
 % ROC parameters
@@ -49,7 +49,7 @@ params.deriveBvIdx = {
                       [5,11,17,24]; % defensive behaviors, defend, escape, flinch, attention
                       [4,13,18,12,16]; % exploratory behaviors, climb, stand, dig, exploreobj, biteobj
                       [2, 14]; % initiative behaviors, approach, follow
-                      [6,16]; % sniff and bite, general obj investigation behavior
+%                       [6,16]; % sniff and bite, general obj investigation behavior
                               };
                       
 %%%% load allPairs if requested and not loaded
