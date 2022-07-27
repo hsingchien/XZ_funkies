@@ -18,7 +18,7 @@ info.dateTime = datetime; % write only
 info.structPath = pwd; % allPairs F structure path
 info.structName = 'allPairs_20220622_lite.mat'; % allPairs F structure filename
 
-info.rocPath = 'E:\MiniscopeData(processed)\NewCage_free_dual\mDLX_vs_mDLX\Male\allPairs\ROC\'; % ROC file save path
+info.rocPath = 'D:\UCLA_data\ROC\'; % ROC file save path
 info.loadROC = 'create'; % get (gets from rocPath), specify ROC file name, or create (to create new)
 
 info.saveExtension = 'toy_exp'; %%%% extension for ROC filename (will be saved as ROC_saveExtension or test_ROC_saveExtension)
