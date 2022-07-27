@@ -1,7 +1,7 @@
 #define pin473LED1 2 // portD 2
 #define pin473Laser1 4 // portD 4
-#define pin473LED2 4 // portB 0 (pin12)
-#define pin473Laser2 5 // portB 4 (pin13)
+#define pin473LED2 5 // portB 5 (pin13)
+#define pin473Laser2 4 // portB 4 (pin12)
 #define pinIDLE1 7 // portD 7 (pin7)
 #define pinIDLE2 0 // portB 5 (pin8)
 // 1s are always on port D, 2s are always on port B
@@ -57,7 +57,7 @@ void loop()
   switch(Mode)
   {
     case 0: // idle mode
-    Serial.println("Input all parameters: e.g. p473,20,6,4,20,20,3,18,1,12,4,13,");
+    Serial.println("Input all parameters: e.g. p473,20,6,4,20,20,3,18,1,13,4,12,");
     Serial.println("p-wavelength,expdur,cycdur,dutydur,pulsefreq,pulsewidth,start1,stop1,start2,stop2,channel1,channel2");
     // wavelength, expduration, cycleduration, dutylength, pulsefreq, pulsewidth, startat1, stopat1, startat2, stopat2, pinLaser1, pinLaser2
     Mode++;
@@ -72,7 +72,7 @@ void loop()
     
     if (LaserChannel1 == 4) {
       pinOutLED1 = pin473LED1; pinOutLaser1 = pin473Laser1; portforLaser1 = &PORTD;}
-    else if (LaserChannel1 == 13) {
+    else if (LaserChannel1 == 12) {
       pinOutLED1 = pin473LED2; pinOutLaser1 = pin473Laser2; portforLaser1 = &PORTB;} 
     else 
     {
@@ -83,7 +83,7 @@ void loop()
       } 
     if (LaserChannel2 == 4) {
       pinOutLED2 = pin473LED1; pinOutLaser2 = pin473Laser1; portforLaser2 = &PORTD;}
-    else if (LaserChannel2 == 13) {
+    else if (LaserChannel2 == 12) {
       pinOutLED2 = pin473LED2; pinOutLaser2 = pin473Laser2; portforLaser2 = &PORTB;} 
     else 
     {

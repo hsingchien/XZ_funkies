@@ -26,7 +26,7 @@ info.saveExtension = 'toy_exp'; %%%% extension for ROC filename (will be saved a
 %%%% set ROC run parameters
 
 % pair(s) and session(s)
-params.pairSet = [43];
+params.pairSet = 14:19;
 params.sessionSet = {'exp'}; % 'sep', 'exp', 'exp#' (e.g. 'exp2'), or any combination (will skip if session does not exist)
 %%%% add traces or spikes
 
