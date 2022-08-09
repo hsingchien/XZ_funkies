@@ -18,7 +18,7 @@ info.dateTime = datetime; % write only
 info.structPath = pwd; % allPairs F structure path
 info.structName = 'allPairs_20220622_lite.mat'; % allPairs F structure filename
 
-info.rocPath = 'D:\UCLA_data\ROC\'; % ROC file save path
+info.rocPath = 'E:\MiniscopeData(processed)\NewCage_free_dual\Shank3\DLX-DLX\allPairs\ROC\'; % ROC file save path
 info.loadROC = 'create'; % get (gets from rocPath), specify ROC file name, or create (to create new)
 
 info.saveExtension = 'toy_exp'; %%%% extension for ROC filename (will be saved as ROC_saveExtension or test_ROC_saveExtension)
@@ -26,7 +26,7 @@ info.saveExtension = 'toy_exp'; %%%% extension for ROC filename (will be saved a
 %%%% set ROC run parameters
 
 % pair(s) and session(s)
-params.pairSet = 14:19;
+params.pairSet = 36;
 params.sessionSet = {'exp'}; % 'sep', 'exp', 'exp#' (e.g. 'exp2'), or any combination (will skip if session does not exist)
 %%%% add traces or spikes
 
