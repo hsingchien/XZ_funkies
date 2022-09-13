@@ -33,6 +33,7 @@ long time1 = 0;
 long time0 = 0;
 long time2 = 0;
 long time3 = 0;
+long timeout = 3600000;
 volatile uint8_t *portforLaser1; // pointer to target Port
 volatile uint8_t *portforLaser2;
 
@@ -151,7 +152,15 @@ void loop()
       delay(max(1000/pulsefreq - (time3 - time2),0)); // to avoid negative value
       //Serial.println(max(1000/long(pulsefreq) - (time3 - time2),0));
     }
-    if (Mode == 4){break;} 
+    if (Mode == 4){
+      LEDon1 = 0;
+      LEDon2 = 0;
+      *portforLaser1 &= ~(1<<pinOutLaser1);
+      *portforLaser2 &= ~(1<<pinOutLaser2); 
+      *portforLaser1 &= ~(1<<pinOutLED1);
+      *portforLaser2 &= ~(1<<pinOutLED2);
+      break;
+      } 
     else if (Mode == 0) {
       imemory = 0; 
       LEDon1 = 0;
@@ -171,6 +180,67 @@ void loop()
     LEDon1 = 0;
     LEDon2 = 0;
     break;
+
+    case 5: // constant ON state
+    if (LaserChannel1 == 4) {
+      pinOutLED1 = pin473LED1; pinOutLaser1 = pin473Laser1; portforLaser1 = &PORTD;}
+    else if (LaserChannel1 == 12) {
+      pinOutLED1 = pin473LED2; pinOutLaser1 = pin473Laser2; portforLaser1 = &PORTB;} 
+    else 
+    {
+      Serial.println("Stim1 is IDLE, NO LASER!");
+      pinOutLED1 = pin473LED1;  
+      pinOutLaser1 = pinIDLE1;
+      portforLaser1 = &PORTD;
+      } 
+    if (LaserChannel2 == 4) {
+      pinOutLED2 = pin473LED1; pinOutLaser2 = pin473Laser1; portforLaser2 = &PORTD;}
+    else if (LaserChannel2 == 12) {
+      pinOutLED2 = pin473LED2; pinOutLaser2 = pin473Laser2; portforLaser2 = &PORTB;} 
+    else 
+    {
+      Serial.println("Stim2 is IDLE, NO LASER!");
+      pinOutLED2 = pin473LED2;  
+      pinOutLaser2 = pinIDLE2;
+      portforLaser2 = &PORTB;
+      }
+
+    time0 = millis();
+    *portforLaser1 |= (1<<pinOutLED1); // turn on led 1
+    *portforLaser2 |= (1<<pinOutLED2); //turn on LED2
+    while (true) 
+    {
+      //Serial.println(i);
+      time2 = millis();
+      if ((time2 -time0) >= timeout) {Mode = 0; break;}
+
+      *portforLaser1 |= (1<<pinOutLaser1); // turn on laser 1
+
+      *portforLaser2 |= (1<<pinOutLaser2); // turn on laser 2 (pin7)
+      
+      
+      delay(pulsewidth);
+      
+      *portforLaser1 &= ~(1<<pinOutLaser1);
+      *portforLaser2 &= ~(1<<pinOutLaser2); 
+      
+      checkCommand();
+      if (Mode == 0){break;}
+      time3 = millis();
+      //Serial.println("cycle time"); Serial.println(time3-time2);
+      
+      delay(max(1000/pulsefreq - (time3 - time2),0)); // to avoid negative value
+      //Serial.println(max(1000/long(pulsefreq) - (time3 - time2),0));
+    }
+    if (Mode == 0) {
+      *portforLaser1 &= ~(1<<pinOutLaser1);
+      *portforLaser2 &= ~(1<<pinOutLaser2); 
+      *portforLaser1 &= ~(1<<pinOutLED1);
+      *portforLaser2 &= ~(1<<pinOutLED2);
+      break;
+      }
+    break;
+
     
     case 4: // pause state
     //digitalWrite(LED_BUILTIN, HIGH); delay(200); digitalWrite(LED_BUILTIN, LOW);
@@ -188,46 +258,11 @@ void loop()
     }
     }
 
-    /*case 4:
-    if (wavelength == 473) { pinOutLED = pin473LED; pinOutLaser = pin473Laser; }  
-    else if (wavelength == 593) { pinOutLED = pin593LED; pinOutLaser = pin593Laser; }
-    else if (wavelength == 635) { pinOutLED = pin593LED; pinOutLaser = pin593Laser; }
-    digitalWrite(pinOutLED,HIGH);
-    digitalWrite(pinOutLaser,HIGH);
-    delay(totalDuration*1000);
-    digitalWrite(pinOutLaser,LOW);
-    digitalWrite(pinOutLED,LOW);
-    Mode = 0;
-    break;*/
 
-    /*case 5:
-    if (wavelength == 473) { pinOutLED = pin473LED; pinOutLaser = pin473Laser; }  
-    else if (wavelength == 593) { pinOutLED = pin593LED; pinOutLaser = pin593Laser; }
-    else if (wavelength == 635) { pinOutLED = pin593LED; pinOutLaser = pin593Laser; }
-    digitalWrite(pinOutLED,HIGH);
-    digitalWrite(pinOutLaser,HIGH);
-    delay(totalDuration*1000);
-    digitalWrite(pinOutLaser,LOW);
-    digitalWrite(pinOutLED,LOW);
-    Mode = 0;
-    break;*/
+
   }
 }
 
-/*void checkCommand2()
-{
-  if (Serial.available()) //check if any character is available
-  {
-    char chr = Serial.read();
-    if (chr >= '0' && chr <= '9')
-    {
-      totalDuration = (chr - '0');
-      Mode = 4;
-      Serial.println(totalDuration);
-      
-    }    
-  }
-}*/
 
 //function to check trigger/continous/reset
 void checkCommand()
@@ -285,6 +320,16 @@ void checkCommand()
       Mode = 4;}// pause
     else if(ch == 's' && Mode != 1){
       Mode = 0;}//stop & reset
+    else if(ch == 'c' && (Mode != 3 || Mode != 4)){ // constant on mode
+      wavelength = valueRead();
+      pulsefreq = valueRead();
+      pulsewidth = valueRead();
+      LaserChannel1 = valueRead();
+      LaserChannel2 = valueRead();
+      Serial.println(LaserChannel1);
+      Serial.println(LaserChannel2);
+      Mode = 5;
+    }
   }
 }
 
