@@ -16,6 +16,8 @@ for i = 1:steps
             thisbin = mean(thisPiece, 1);
         case 'median'
             thisbin = median(thisPiece, 1);
+        case 'max'
+            thisbin = max(thisPiece,[],1);
     end
     binedData = cat(1, binedData, thisbin);
 end

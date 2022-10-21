@@ -36,7 +36,7 @@ end
 
 if strcmp(clist, 'all') & isfield(estruct.MS{sessionID},'goodCellVec')
     clist = find(estruct.MS{sessionID}.goodCellVec);
-else
+elseif strcmp(clist, 'all')
     clist = 1:size(estruct.MS{sessionID}.FiltTraces,2);
 end
 for i = 1:length(behav_patch)

@@ -1,7 +1,7 @@
 function [perform,perform_shifted] = OnevOneDecoder(X,Y,kfold,cvspace,model,eval_metric)
         
         
-        [trainingsets, valisets] = cvpartition_spacing(Y, cvspace, kfold);
+        [trainingsets, valisets] = CVPartition_Spacing(Y, cvspace, kfold);
         perform = [];
         perform_shifted = [];
         for k = 1:kfold

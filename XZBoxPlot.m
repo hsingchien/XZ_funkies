@@ -9,7 +9,11 @@ function  f = XZBoxPlot(inputdata, color_group, plotorder, xlegend, color_palett
 % make sure all entries in InputData are nx1
 inputdata_copy = {};
 for i = 1:length(inputdata)
-    inputdata_copy = [inputdata_copy, num2cell(inputdata{i},1)];
+    if ~isempty(inputdata{i})
+        inputdata_copy = [inputdata_copy, num2cell(inputdata{i},1)];
+    else
+        inputdata_copy = [inputdata_copy, [nan]];
+    end
 end
 % reorder inputdata_copy according to plotorder
 if exist('plotorder','var') & ~isempty(plotorder)
@@ -19,7 +23,7 @@ else
     idx = 1:length(inputdata_copy);
 end
 if ~exist('dotline','var')
-    dotline = false;
+    dotline = 'none';
 end
 
 
@@ -29,6 +33,7 @@ if ~isempty(color_group)
     color_group = color_group(idx);
 else
     color_group = 1:length(inputdata_copy);
+    color_group_ori = color_group;
 end
 
 if exist('maxdistcolor') & ~exist('color_palette','var')
@@ -101,21 +106,21 @@ a2.XAxis.FontSize = 13; a2.YAxis.FontSize = 13;
 close(f1);
 
 % add dot lines by colorgroup
-if dotline
+if strcmp(dotline,'dot') | strcmp(dotline,'line')
     for i = unique(color_group_ori)
         xs = plotorder(find(color_group_ori==i));
         for j = xs % dots
             plot(a2, inputdata_copy{j}*0+j, inputdata_copy{j}, 'k.','MarkerSize',10);
         end
-        for j = 1:numel(inputdata_copy{xs(1)})
-            temp_data = [];
-            for k = xs
-                temp_data = [temp_data;inputdata_copy{k}(j)];
+        if strcmp(dotline, 'line')
+            for j = 1:numel(inputdata_copy{xs(1)})
+                temp_data = [];
+                for k = xs
+                    temp_data = [temp_data;inputdata_copy{k}(j)];
+                end
+                plot(a2, xs, temp_data, 'k-');
             end
-            plot(a2, xs, temp_data, 'k-');
         end
-    
-
     end
 end
 
